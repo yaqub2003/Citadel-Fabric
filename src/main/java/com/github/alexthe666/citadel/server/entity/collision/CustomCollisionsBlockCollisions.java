@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.*;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 
 public class CustomCollisionsBlockCollisions extends AbstractIterator<VoxelShape> {
     private final AABB box;

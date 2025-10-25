@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -29,8 +30,8 @@ import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -329,7 +330,7 @@ public abstract class AbstractPathJob implements Callable<Path> {
         }
 
         BlockState down = world.getBlockState(pos.below());
-        while (!bs.blocksMotion() && !down.blocksMotion() && !down.getBlock().isLadder(down, world, pos.below(), entity) && bs.getFluidState().isEmpty()) {
+        while (!bs.blocksMotion() && !down.blocksMotion() && !down.is(Blocks.LADDER) && bs.getFluidState().isEmpty()) {
             pos.move(Direction.DOWN, 1);
             bs = down;
             down = world.getBlockState(pos.below());
@@ -1320,8 +1321,12 @@ public abstract class AbstractPathJob implements Callable<Path> {
 
                 // TODO: I'd be cool if dragons could squash multiple snow layers when walking over them
                 if (shape.isEmpty() || shape.max(Direction.Axis.Y) <= 0.125 && !isLiquid((block)) && (block.getBlock() != Blocks.SNOW || block.getValue(SnowLayerBlock.LAYERS) == 1)) {
-                    final BlockPathTypes pathType = block.getBlockPathType(world, pos, null);
-                    return pathType == null || pathType.getDanger() == null;
+                    boolean isDangerous = block.getBlock() == Blocks.CACTUS
+                            || block.getBlock() == Blocks.MAGMA_BLOCK
+                            || block.getBlock() == Blocks.FIRE
+                            || block.getBlock() == Blocks.LAVA;
+
+                    return !isDangerous;
                 }
                 return false;
             }
@@ -1462,7 +1467,7 @@ public abstract class AbstractPathJob implements Callable<Path> {
      * @return true if the block is a ladder.
      */
     protected boolean isLadder(final Block block, final BlockPos pos) {
-        return block.isLadder(this.world.getBlockState(pos), world, pos, entity.get());
+        return block instanceof LadderBlock;
     }
 
     protected boolean isLadder(final BlockPos pos) {

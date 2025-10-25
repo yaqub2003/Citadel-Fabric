@@ -2,10 +2,7 @@ package com.github.alexthe666.citadel.client.game;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,14 +14,13 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.awt.*;
 
@@ -36,23 +32,23 @@ public class Tetris {
     private int score;
     private int renderTime = 0;
     private int keyCooldown;
-    private static final int HEIGHT = 20;
+    private static int HEIGHT = 20;
     private TetrominoShape fallingShape;
     private BlockState fallingBlock;
     private float fallingX;
     private float prevFallingY;
     private float fallingY;
     private Rotation fallingRotation;
-    private final BlockState[][] settledBlocks = new BlockState[10][HEIGHT];
+    private BlockState[][] settledBlocks = new BlockState[10][HEIGHT];
     private boolean gameOver = false;
 
     private TetrominoShape nextShape;
     private BlockState nextBlock;
 
-    private final boolean[] flashingLayer = new boolean[HEIGHT];
+    private boolean[] flashingLayer = new boolean[HEIGHT];
     private int flashFor = 0;
 
-    private final Block[] allRegisteredBlocks = ForgeRegistries.BLOCKS.getValues().stream().toArray(Block[]::new);
+    private final Block[] allRegisteredBlocks = BuiltInRegistries.BLOCK.stream().toArray(Block[]::new);
 
     public Tetris() {
         reset();
@@ -167,7 +163,6 @@ public class Tetris {
                 if (i == 9) {
                     flashingLayer[j] = true;
                     flag = true;
-                    break;
                 }
             }
         }
@@ -211,12 +206,11 @@ public class Tetris {
                 BlockState block = allRegisteredBlocks[random.nextInt(allRegisteredBlocks.length - 1)].defaultBlockState();
                 try {
                     BakedModel blockModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(block);
-                    if (blockModel != null && !block.is(Blocks.GLOWSTONE) && !blockModel.isCustomRenderer() && blockModel.getRenderTypes(block, random, ModelData.EMPTY).contains(RenderType.solid())) {
+                    if (!block.is(Blocks.GLOWSTONE) && !blockModel.isCustomRenderer() /*&& blockModel.getRenderTypes(block, random, ModelData.EMPTY).contains(RenderType.solid())*/) {
                         randomState = block;
                         break;
                     }
-                } catch (Exception ignored) {
-                }
+                } catch (Exception ignored){}
             }
         }
         nextShape = TetrominoShape.getRandom(random);
@@ -261,7 +255,7 @@ public class Tetris {
     }
 
     private void renderBlockState(BlockState state, float offsetX, float offsetY, float size) {
-        TextureAtlasSprite sprite = Minecraft.getInstance().getBlockRenderer().getBlockModel(state).getParticleIcon(ModelData.EMPTY);
+        TextureAtlasSprite sprite = Minecraft.getInstance().getBlockRenderer().getBlockModel(state).getParticleIcon();
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -279,8 +273,8 @@ public class Tetris {
         float offsetX = screen.width / 2F - scale * 5F;
         float offsetY = scale * 0.5F;
         if (started) {
-            guiGraphics.fill(RenderType.guiOverlay(), (int) (screen.width * 0.05F), (int) (screen.height * 0.3F), (int) (screen.width * 0.05F) + 70, (int) (screen.height * 0.5F), -1873784752);
-            guiGraphics.fill(RenderType.guiOverlay(), (int) (screen.width * 0.7F), (int) (screen.height * 0.3F), (int) (screen.width * 0.7F) + 130, (int) (screen.height * 0.84F), -1873784752);
+            guiGraphics.fill(RenderType.guiOverlay(), (int) (screen.width * 0.05F), (int) (screen.height * 0.3F), (int) (screen.width * 0.05F) + 70, (int) (screen.height * 0.5F),  -1873784752);
+            guiGraphics.fill(RenderType.guiOverlay(), (int) (screen.width * 0.7F), (int) (screen.height * 0.3F), (int) (screen.width * 0.7F) + 130, (int) (screen.height * 0.84F),  -1873784752);
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
@@ -316,7 +310,7 @@ public class Tetris {
             guiGraphics.drawString(Minecraft.getInstance().font, "[DOWN ARROW] quick drop", (int) (screen.width * 0.71F), (int) (screen.height * 0.55F) + 30, rainbow);
             guiGraphics.drawString(Minecraft.getInstance().font, "[T] start over", (int) (screen.width * 0.71F), (int) (screen.height * 0.55F) + 50, rainbow);
             guiGraphics.drawString(Minecraft.getInstance().font, "Happy april fools from Citadel", 5, 5, rainbow);
-            if (gameOver) {
+            if(gameOver){
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().translate((int) (screen.width * 0.5F), (int) (screen.height * 0.5F), 150);
                 guiGraphics.pose().scale(3 + (float) Math.sin(hue * Math.PI) * 0.4F, 3 + (float) Math.sin(hue * Math.PI) * 0.4F, 3 + (float) Math.sin(hue * Math.PI) * 0.4F);

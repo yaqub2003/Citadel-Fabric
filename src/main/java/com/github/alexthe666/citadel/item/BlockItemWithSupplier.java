@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
-import net.minecraftforge.registries.RegistryObject;
+import io.github.fabricators_of_create.porting_lib.util.RegistryObject;
 
 public class BlockItemWithSupplier extends BlockItem {
 

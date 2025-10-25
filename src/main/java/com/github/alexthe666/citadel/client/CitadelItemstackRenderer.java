@@ -4,6 +4,9 @@ import com.github.alexthe666.citadel.Citadel;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemDisplayContext;
+import org.joml.Matrix4f;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -15,11 +18,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.joml.Matrix4f;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +48,7 @@ public class CitadelItemstackRenderer extends BlockEntityWithoutLevelRenderer {
             ItemStack toRender = null;
             if (stack.getTag() != null && stack.getTag().contains("DisplayItem")) {
                 String displayID = stack.getTag().getString("DisplayItem");
-                toRender = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(displayID)));
+                toRender = new ItemStack(BuiltInRegistries.ITEM.get(new ResourceLocation(displayID)));
                 if (stack.getTag().contains("DisplayItemNBT")) {
                     try {
                         toRender.setTag(stack.getTag().getCompound("DisplayItemNBT"));
@@ -63,20 +63,20 @@ public class CitadelItemstackRenderer extends BlockEntityWithoutLevelRenderer {
             }
             matrixStack.pushPose();
             matrixStack.translate(0.5F, 0.5f, 0.5f);
-            if (stack.getTag() != null && stack.getTag().contains("DisplayShake") && stack.getTag().getBoolean("DisplayShake")) {
+            if(stack.getTag() != null && stack.getTag().contains("DisplayShake") && stack.getTag().getBoolean("DisplayShake")) {
                 matrixStack.translate((random.nextFloat() - 0.5F) * 0.1F, (random.nextFloat() - 0.5F) * 0.1F, (random.nextFloat() - 0.5F) * 0.1F);
             }
-            if (animateAnyways || stack.getTag() != null && stack.getTag().contains("DisplayBob") && stack.getTag().getBoolean("DisplayBob")) {
+            if(animateAnyways || stack.getTag() != null && stack.getTag().contains("DisplayBob") && stack.getTag().getBoolean("DisplayBob")){
                 matrixStack.translate(0, 0.05F + 0.1F * Mth.sin(0.3F * ticksExisted), 0);
             }
-            if (stack.getTag() != null && stack.getTag().contains("DisplaySpin") && stack.getTag().getBoolean("DisplaySpin")) {
+            if(stack.getTag() != null && stack.getTag().contains("DisplaySpin") && stack.getTag().getBoolean("DisplaySpin")){
                 matrixStack.mulPose(Axis.YP.rotationDegrees(6 * ticksExisted));
             }
-            if (animateAnyways || stack.getTag() != null && stack.getTag().contains("DisplayZoom") && stack.getTag().getBoolean("DisplayZoom")) {
+            if(animateAnyways || stack.getTag() != null && stack.getTag().contains("DisplayZoom") && stack.getTag().getBoolean("DisplayZoom")) {
                 float scale = (float) (1F + 0.15F * (Math.sin(ticksExisted * 0.3F) + 1F));
                 matrixStack.scale(scale, scale, scale);
             }
-            if (stack.getTag() != null && stack.getTag().contains("DisplayScale") && stack.getTag().getFloat("DisplayScale") != 1.0F) {
+            if(stack.getTag() != null && stack.getTag().contains("DisplayScale") && stack.getTag().getFloat("DisplayScale") != 1.0F){
                 float scale = stack.getTag().getFloat("DisplayScale");
                 matrixStack.scale(scale, scale, scale);
             }
@@ -92,10 +92,10 @@ public class CitadelItemstackRenderer extends BlockEntityWithoutLevelRenderer {
             MobEffect effect;
             if (stack.getTag() != null && stack.getTag().contains("DisplayEffect")) {
                 String displayID = stack.getTag().getString("DisplayEffect");
-                effect = ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(displayID));
+                effect = BuiltInRegistries.MOB_EFFECT.get(new ResourceLocation(displayID));
             } else {
-                if (mobEffectList == null) {
-                    mobEffectList = ForgeRegistries.MOB_EFFECTS.getValues().stream().toList();
+                if(mobEffectList == null){
+                    mobEffectList = BuiltInRegistries.MOB_EFFECT.stream().toList();
                 }
                 int size = mobEffectList.size();
                 int time = (int) (Util.getMillis() / 500);
@@ -130,9 +130,9 @@ public class CitadelItemstackRenderer extends BlockEntityWithoutLevelRenderer {
             ResourceLocation texture = DEFAULT_ICON_TEXTURE;
             if (stack.getTag() != null && stack.getTag().contains("IconLocation")) {
                 String iconLocationStr = stack.getTag().getString("IconLocation");
-                if (LOADED_ICONS.containsKey(iconLocationStr)) {
+                if(LOADED_ICONS.containsKey(iconLocationStr)){
                     texture = LOADED_ICONS.get(iconLocationStr);
-                } else {
+                }else{
                     texture = new ResourceLocation(iconLocationStr);
                     LOADED_ICONS.put(iconLocationStr, texture);
                 }

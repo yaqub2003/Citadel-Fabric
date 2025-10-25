@@ -5,10 +5,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -18,7 +18,7 @@ import org.joml.Vector4f;
  * @since 1.9.0
  * Duplicate of ModelPart class which is not final
  */
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class BasicModelPart {
     public float textureWidth = 64.0F;
     public float textureHeight = 32.0F;
@@ -192,7 +192,7 @@ public class BasicModelPart {
         return this.cubeList.size() > 0 ? this.cubeList.get(randomIn.nextInt(this.cubeList.size())) : null;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public static class ModelBox {
         private final BasicModelPart.TexturedQuad[] quads;
         public final float posX1;
@@ -251,7 +251,7 @@ public class BasicModelPart {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     static class PositionTextureVertex {
         public final Vector3f position;
         public final float textureU;
@@ -272,7 +272,7 @@ public class BasicModelPart {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     static class TexturedQuad {
         public final BasicModelPart.PositionTextureVertex[] vertexPositions;
         public final Vector3f normal;

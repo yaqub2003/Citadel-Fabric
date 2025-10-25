@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderStateShard.DepthTestStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -1082,15 +1083,22 @@ public class WorldRenderMacros extends UiRenderMacros {
                         .createCompositeState(false));
     }
 
-    public static class AlwaysDepthTestStateShard extends DepthTestStateShard {
+    public static class AlwaysDepthTestStateShard extends RenderStateShard.DepthTestStateShard {
         public static final DepthTestStateShard ALWAYS_DEPTH_TEST = new AlwaysDepthTestStateShard();
 
         private AlwaysDepthTestStateShard() {
-            super("true_always", -1);
-            setupState = () -> {
-                RenderSystem.enableDepthTest();
-                RenderSystem.depthFunc(GL11.GL_ALWAYS);
-            };
+            super("always_depth_test", GL11.GL_ALWAYS);
+        }
+
+        @Override
+        public void setupRenderState() {
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthFunc(GL11.GL_ALWAYS);
+        }
+
+        @Override
+        public void clearRenderState() {
+            RenderSystem.depthFunc(GL11.GL_LEQUAL);
         }
     }
 }

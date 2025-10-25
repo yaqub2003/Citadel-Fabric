@@ -8,12 +8,12 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 /**
  * An enhanced RendererModel
@@ -21,7 +21,7 @@ import org.joml.Vector4f;
  * @author gegy1000
  * @since 1.0.0
  */
-@OnlyIn(Dist.CLIENT)
+@Environment(EnvType.CLIENT)
 public class AdvancedModelBox extends BasicModelPart {
     public float defaultRotationX, defaultRotationY, defaultRotationZ;
     public float defaultOffsetX, defaultOffsetY, defaultOffsetZ;

@@ -13,8 +13,6 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.Event;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,14 +29,14 @@ public class LevelRendererMixin {
     @Shadow
     private Minecraft minecraft;
 
-    @Inject(method = "Lnet/minecraft/client/renderer/LevelRenderer;initOutline()V",
+    @Inject(method = "initOutline()V",
             remap = CitadelConstants.REMAPREFS,
             at = @At("TAIL"))
     private void citadel_initOutline(CallbackInfo ci) {
         PostEffectRegistry.onInitializeOutline();
     }
 
-    @Inject(method = "Lnet/minecraft/client/renderer/LevelRenderer;resize(II)V",
+    @Inject(method = "resize(II)V",
             remap = CitadelConstants.REMAPREFS,
             at = @At("TAIL"))
     private void citadel_resize(int x, int y, CallbackInfo ci) {
@@ -46,7 +44,7 @@ public class LevelRendererMixin {
     }
 
 
-    @Inject(method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
+    @Inject(method = "renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
             remap = CitadelConstants.REMAPREFS,
             at = @At(
                     value = "INVOKE",
@@ -57,7 +55,7 @@ public class LevelRendererMixin {
         PostEffectRegistry.clearAndBindWrite(this.minecraft.getMainRenderTarget());
     }
 
-    @Inject(method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
+    @Inject(method = "renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
             remap = CitadelConstants.REMAPREFS,
             at = @At(
                     value = "INVOKE",
@@ -68,7 +66,7 @@ public class LevelRendererMixin {
         PostEffectRegistry.processEffects(this.minecraft.getMainRenderTarget(), f);
     }
 
-    @Inject(method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
+    @Inject(method = "renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
             remap = CitadelConstants.REMAPREFS,
             at = @At(
                     value = "TAIL"
@@ -78,22 +76,21 @@ public class LevelRendererMixin {
     }
 
     @Redirect(
-            method = "Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
+            method = "renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
             remap = CitadelConstants.REMAPREFS,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getTeamColor()I")
     )
     private int citadel_getTeamColor(Entity entity) {
         EventGetOutlineColor event = new EventGetOutlineColor(entity, entity.getTeamColor());
-        MinecraftForge.EVENT_BUS.post(event);
         int color = entity.getTeamColor();
-        if (event.getResult() == Event.Result.ALLOW) {
+        if (EventGetOutlineColor.EVENT.invoker().onGetOutlineColor(event).isTrue()) {
             color = event.getColor();
         }
         return color;
     }
 
     @Redirect(
-            method = "Lnet/minecraft/client/renderer/LevelRenderer;renderSky(Lcom/mojang/blaze3d/vertex/PoseStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/Camera;ZLjava/lang/Runnable;)V",
+            method = "renderSky(Lcom/mojang/blaze3d/vertex/PoseStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/Camera;ZLjava/lang/Runnable;)V",
             remap = CitadelConstants.REMAPREFS,
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getTimeOfDay(F)F"),
             expect = 2

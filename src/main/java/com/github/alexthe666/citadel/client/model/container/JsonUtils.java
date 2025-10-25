@@ -3,13 +3,13 @@ package com.github.alexthe666.citadel.client.model.container;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -20,7 +20,7 @@ public class JsonUtils {
         return isJsonPrimitive(json, memberName) && json.getAsJsonPrimitive(memberName).isString();
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public static boolean isString(JsonElement json) {
         return json.isJsonPrimitive() && json.getAsJsonPrimitive().isString();
     }
@@ -29,7 +29,7 @@ public class JsonUtils {
         return json.isJsonPrimitive() && json.getAsJsonPrimitive().isNumber();
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     public static boolean isBoolean(JsonObject json, String memberName) {
         return isJsonPrimitive(json, memberName) && json.getAsJsonPrimitive(memberName).isBoolean();
     }
@@ -93,7 +93,7 @@ public class JsonUtils {
 
     @Nullable
     public static Item getByNameOrId(String id) {
-        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
+        Item item = BuiltInRegistries.ITEM.getOptional(new ResourceLocation(id)).orElse(null);
 
         if (item == null) {
             try {

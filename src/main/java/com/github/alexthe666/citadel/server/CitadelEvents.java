@@ -15,52 +15,72 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import dev.architectury.event.EventResult;
+import dev.architectury.event.events.common.InteractionEvent;
+import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.event.events.common.TickEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 
 public class CitadelEvents {
 
     private int updateTimer;
 
-    @SubscribeEvent
-    public void onEntityUpdateDebug(LivingEvent.LivingTickEvent event) {
+    public CitadelEvents() {
+        TickEvent.PLAYER_POST.register(player -> {
+            onEntityUpdateDebug(player);
+        });
+
+        InteractionEvent.RIGHT_CLICK_BLOCK.register((player, hand, pos, face) -> {
+            onRightClickBlock(player, hand, pos, face);
+
+            return EventResult.pass();
+        });
+
+        PlayerEvent.PLAYER_CLONE.register((oldPlayer, newPlayer, wonGame) -> {
+            onPlayerClone(oldPlayer, newPlayer);
+        });
+    }
+
+    public void onEntityUpdateDebug(LivingEntity entity) {
         if (CitadelConstants.DEBUG) {
-            if ((event.getEntity() instanceof Player)) {
-                CompoundTag tag = CitadelEntityData.getCitadelTag(event.getEntity());
+            if ((entity instanceof Player)) {
+                CompoundTag tag = CitadelEntityData.getCitadelTag(entity);
                 tag.putInt("CitadelInt", tag.getInt("CitadelInt") + 1);
                 Citadel.LOGGER.debug("Citadel Data Tag tracker example: " + tag.getInt("CitadelInt"));
             }
         }
     }
 
-    @SubscribeEvent
-    public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getLevel().getBlockState(event.getPos()).is(Blocks.LECTERN) && LecternBooks.isLecternBook(event.getItemStack())) {
-            event.getEntity().getCooldowns().addCooldown(event.getItemStack().getItem(), 1);
-            BlockState oldLectern = event.getLevel().getBlockState(event.getPos());
-            if (event.getLevel().getBlockEntity(event.getPos()) instanceof LecternBlockEntity oldBe && !oldBe.hasBook()) {
+    public void onRightClickBlock(Player player, InteractionHand hand, BlockPos pos, Direction face) {
+        var level = player.level();
+        var stack = player.getItemInHand(hand);
+
+        if(level.getBlockState(pos).is(Blocks.LECTERN) && LecternBooks.isLecternBook(stack)) {
+            player.getCooldowns().addCooldown(stack.getItem(), 1);
+            BlockState oldLectern = level.getBlockState(pos);
+            if(level.getBlockEntity(pos) instanceof LecternBlockEntity oldBe && !oldBe.hasBook()) {
                 BlockState newLectern = Citadel.LECTERN.get().defaultBlockState().setValue(CitadelLecternBlock.FACING, oldLectern.getValue(LecternBlock.FACING)).setValue(CitadelLecternBlock.POWERED, oldLectern.getValue(LecternBlock.POWERED)).setValue(CitadelLecternBlock.HAS_BOOK, true);
-                event.getLevel().setBlockAndUpdate(event.getPos(), newLectern);
-                CitadelLecternBlockEntity newBe = new CitadelLecternBlockEntity(event.getPos(), newLectern);
-                ItemStack bookCopy = event.getItemStack().copy();
+                level.setBlockAndUpdate(pos, newLectern);
+                CitadelLecternBlockEntity newBe = new CitadelLecternBlockEntity(pos, newLectern);
+                ItemStack bookCopy = stack.copy();
                 bookCopy.setCount(1);
                 newBe.setBook(bookCopy);
-                if (!event.getEntity().isCreative()) {
-                    event.getItemStack().shrink(1);
+                if (!player.isCreative()) {
+                    stack.shrink(1);
                 }
-                event.getLevel().setBlockEntity(newBe);
-                event.getEntity().swing(event.getHand(), true);
-                event.getLevel().playSound(null, event.getPos(), SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.setBlockEntity(newBe);
+                player.swing(hand, true);
+                level.playSound(null, pos, SoundEvents.BOOK_PUT, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerClone(PlayerEvent.Clone event) {
-        if (event.getOriginal() != null && CitadelEntityData.getCitadelTag(event.getOriginal()) != null) {
-            CitadelEntityData.setCitadelTag(event.getEntity(), CitadelEntityData.getCitadelTag(event.getOriginal()));
+    public void onPlayerClone(Player original, Player entity) {
+        if (original != null && CitadelEntityData.getCitadelTag(original) != null) {
+            CitadelEntityData.setCitadelTag(entity, CitadelEntityData.getCitadelTag(original));
         }
     }
 }

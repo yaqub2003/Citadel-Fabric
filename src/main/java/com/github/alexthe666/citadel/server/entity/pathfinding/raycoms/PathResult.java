@@ -2,8 +2,8 @@ package com.github.alexthe666.citadel.server.entity.pathfinding.raycoms;
 
 import com.github.alexthe666.citadel.Citadel;
 import net.minecraft.world.level.pathfinder.Path;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;

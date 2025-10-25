@@ -4,13 +4,15 @@ package com.github.alexthe666.citadel.server.entity.pathfinding.raycoms;
  */
 
 import com.github.alexthe666.citadel.Citadel;
+import io.github.fabricators_of_create.porting_lib.util.LogicalSidedProvider;
+import net.fabricmc.api.EnvType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.thread.BlockableEventLoop;
-import net.minecraftforge.common.util.LogicalSidedProvider;
-import net.minecraftforge.fml.LogicalSide;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.*;
+
+
 
 
 /**
@@ -51,7 +53,7 @@ public final class Pathfinding {
 
         @Override
         public Thread newThread(final @NotNull Runnable runnable) throws RuntimeException {
-            BlockableEventLoop<?> workqueue = LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER);
+            BlockableEventLoop<?> workqueue = LogicalSidedProvider.WORKQUEUE.get(EnvType.SERVER);
             ClassLoader classLoader;
             if (workqueue.isSameThread()) {
                 classLoader = Thread.currentThread().getContextClassLoader();

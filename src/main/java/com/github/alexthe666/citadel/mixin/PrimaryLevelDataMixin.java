@@ -38,7 +38,7 @@ public class PrimaryLevelDataMixin {
         Registry<LevelStem> registry = registryAccess.registryOrThrow(Registries.LEVEL_STEM);
         if (registry.containsKey(LevelStem.OVERWORLD)) {
             LevelStem levelstem = registry.get(LevelStem.OVERWORLD);
-            if (levelstem.generator() instanceof NoiseBasedChunkGenerator noiseBasedChunkGenerator && noiseBasedChunkGenerator.settings.isBound() && (Object) noiseBasedChunkGenerator.settings.get() instanceof NoiseGeneratorSettingsAccessor accessor) {
+            if (levelstem.generator() instanceof NoiseBasedChunkGenerator noiseBasedChunkGenerator && noiseBasedChunkGenerator.settings.isBound() && (Object) noiseBasedChunkGenerator.settings.value() instanceof NoiseGeneratorSettingsAccessor accessor) {
                 accessor.onSaveData(saving);
             }
         }

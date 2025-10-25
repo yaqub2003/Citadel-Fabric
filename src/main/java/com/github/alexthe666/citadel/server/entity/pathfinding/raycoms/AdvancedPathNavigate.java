@@ -21,13 +21,14 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.pathfinder.*;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
@@ -536,7 +537,7 @@ public class AdvancedPathNavigate extends AbstractAdvancedPathNavigate {
 
 
             final BlockPos pos = new BlockPos(pEx.x, pEx.y, pEx.z);
-            if (pEx.isOnLadder() && pExNext != null && (pEx.y != pExNext.y || mob.getY() > pEx.y) && level.getBlockState(pos).isLadder(level, pos, ourEntity)) {
+            if (pEx.isOnLadder() && pExNext != null && (pEx.y != pExNext.y || mob.getY() > pEx.y) && level.getBlockState(pos).is(Blocks.LADDER)) {
                 return handlePathPointOnLadder(pEx);
             } else if (ourEntity.isInWater()) {
                 return handleEntityInWater(oldIndex, pEx);
@@ -640,7 +641,7 @@ public class AdvancedPathNavigate extends AbstractAdvancedPathNavigate {
                 }
                 this.ourEntity.getMoveControl().setWantedPosition(vec3.x, vec3.y, vec3.z, newSpeed);
             } else {
-                if (level.getBlockState(entityPos.below()).isLadder(level, entityPos.below(), ourEntity)) {
+                if (level.getBlockState(entityPos.below()).is(Blocks.LADDER)) {
                     this.ourEntity.setYya(-0.5f);
                 } else {
                     return false;

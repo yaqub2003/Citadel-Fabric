@@ -7,11 +7,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -42,7 +42,7 @@ public class EntityLinkButton extends Button {
         guiGraphics.pose().scale(f, f, 1);
         this.drawBtn(false, guiGraphics, 0, 0, lvt_5_1_, lvt_6_1_, 24, 24);
         Entity model = null;
-        EntityType type = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(data.getEntity()));
+        EntityType type = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(data.getEntity()));
         if (type != null) {
             model = renderedEntites.putIfAbsent(data.getEntity(), type.create(Minecraft.getInstance().level));
         }

@@ -5,8 +5,8 @@ package com.github.alexthe666.citadel.server.entity.pathfinding.raycoms;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 
 /**
  * Nodes used in pathfinding.

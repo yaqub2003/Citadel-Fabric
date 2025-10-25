@@ -6,11 +6,17 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
-import net.minecraftforge.eventbus.api.Event;
+import dev.architectury.event.Event;
+import dev.architectury.event.EventFactory;
+import dev.architectury.event.EventResult;
 
-@Event.HasResult
 @Deprecated(since = "2.6.0")
-public class EventReplaceBiome extends Event {
+public class EventReplaceBiome {
+    public static final Event<ReplaceBiomeCallback> EVENT = EventFactory.createEventResult();
+
+    public interface ReplaceBiomeCallback {
+        EventResult onReplaceBiome(EventReplaceBiome event);
+    }
 
     public Holder<Biome> biomeToGenerate;
     public ExpandedBiomeSource biomeSource;
